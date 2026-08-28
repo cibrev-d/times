@@ -1,0 +1,522 @@
+<title>Time Here</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,450;9..144,600&family=JetBrains+Mono:wght@300;400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg: #EEF0F2;
+    --bg-grad: #E4E8EC;
+    --surface: #FFFFFF;
+    --surface-line: #DBDFE4;
+    --text: #1B2430;
+    --text-muted: #5B6472;
+    --text-faint: #8B93A3;
+    --accent: #9C6B2E;
+    --accent-soft: #C9A876;
+    --accent-2: #35506B;
+    --shadow: 0 1px 2px rgba(27, 36, 48, 0.06);
+    --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1420;
+      --bg-grad: #131B29;
+      --surface: #161F2E;
+      --surface-line: #263248;
+      --text: #E8E6DD;
+      --text-muted: #96A0B2;
+      --text-faint: #626E82;
+      --accent: #D4A24E;
+      --accent-soft: #8A6A32;
+      --accent-2: #7FA6C4;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0E1420;
+    --bg-grad: #131B29;
+    --surface: #161F2E;
+    --surface-line: #263248;
+    --text: #E8E6DD;
+    --text-muted: #96A0B2;
+    --text-faint: #626E82;
+    --accent: #D4A24E;
+    --accent-soft: #8A6A32;
+    --accent-2: #7FA6C4;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4.75rem 5vw 4vh;
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -10%, var(--bg-grad), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .controls {
+    position: fixed;
+    top: 1.15rem;
+    right: 1.15rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 10;
+    max-width: min(90vw, 20rem);
+  }
+
+  .ctrl-btn,
+  .ctrl-select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--surface-line);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.05em;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    line-height: 1;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .ctrl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.6rem;
+  }
+
+  .ctrl-btn svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    display: block;
+  }
+
+  .ctrl-btn:hover,
+  .ctrl-select:hover {
+    border-color: var(--accent-soft);
+    color: var(--text);
+  }
+
+  .ctrl-btn:focus-visible,
+  .ctrl-select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 30rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.75rem;
+    text-align: center;
+  }
+
+  .place {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .place-name {
+    font-family: var(--font-heading);
+    font-optical-sizing: auto;
+    font-weight: 450;
+    font-size: clamp(1.3rem, 4vw, 1.7rem);
+    letter-spacing: 0.01em;
+    color: var(--text);
+    text-wrap: balance;
+  }
+
+  .clock {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    font-weight: 500;
+    font-size: clamp(3.2rem, 14vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    display: flex;
+    align-items: baseline;
+    gap: 0.05em;
+  }
+
+  .clock .ampm {
+    font-size: 0.28em;
+    font-weight: 400;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-left: 0.25em;
+    align-self: flex-start;
+    margin-top: 0.5em;
+  }
+
+  .clock .colon {
+    color: var(--accent-soft);
+    transition: opacity 0.15s ease;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .clock .colon.dim { opacity: 0.25; }
+  }
+
+  .date-row {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .progress {
+    width: 100%;
+    max-width: 22rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: var(--surface-line);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--surface-line);
+    width: 100%;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .meta-row .k {
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+  }
+
+  .meta-row .v {
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .meta-row .v.accent {
+    color: var(--accent-2);
+  }
+</style>
+
+<div class="controls" role="group" aria-label="Display settings">
+  <button type="button" class="ctrl-btn" id="dateFormatBtn" title="Date format" aria-label="Toggle US or European date format">US</button>
+  <button type="button" class="ctrl-btn" id="timeFormatBtn" title="Time format" aria-label="Toggle 12-hour or 24-hour time">12H</button>
+  <button type="button" class="ctrl-btn" id="themeBtn" title="Theme" aria-label="Toggle dark or light mode">
+    <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+    </svg>
+    <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+    </svg>
+  </button>
+  <select class="ctrl-select" id="fontSelect" aria-label="Typeface">
+    <option value="default">Default</option>
+    <option value="calibri">Calibri</option>
+    <option value="times">Times New Roman</option>
+    <option value="georgia">Georgia</option>
+    <option value="courier">Courier New</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="place">
+    <div class="place-name" id="dateHeading">Loading…</div>
+  </div>
+
+  <div class="clock" id="clock" aria-live="polite">
+    <span id="clockText">--:--:--</span><span class="ampm" id="ampm"></span>
+  </div>
+
+  <div class="date-row" id="placeRow">&nbsp;</div>
+
+  <div class="progress" role="img" aria-label="Position within the 24-hour day">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="dayStartLabel">&nbsp;</span>
+      <span>Noon</span>
+      <span>Midnight</span>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="meta-row">
+      <span class="k">UTC offset</span>
+      <span class="v" id="offsetVal">—</span>
+    </div>
+    <div class="meta-row">
+      <span class="k">Coordinated time</span>
+      <span class="v accent" id="utcVal">—</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  var STORAGE_KEY = "time-here:prefs";
+
+  function formatPlace(zone) {
+    var parts = zone.split("/");
+    var city = (parts[parts.length - 1] || zone).replace(/_/g, " ");
+    var region = parts.length > 1 ? parts[0].replace(/_/g, " ") : "";
+    return { city: city, region: region };
+  }
+
+  var place = formatPlace(tz);
+  document.getElementById("placeRow").textContent = place.region ? (place.city + " · " + tz) : place.city;
+
+  // Time is always read as true 24h parts; 12H/24H is a display choice applied below.
+  var hour24Fmt = new Intl.DateTimeFormat(undefined, {
+    timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"
+  });
+  var dateFmtUS = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz, weekday: "long", month: "long", day: "numeric", year: "numeric"
+  });
+  var dateFmtEU = new Intl.DateTimeFormat("en-GB", {
+    timeZone: tz, weekday: "long", day: "numeric", month: "long", year: "numeric"
+  });
+  var offsetFmt = new Intl.DateTimeFormat(undefined, {
+    timeZone: tz, timeZoneName: "longOffset"
+  });
+  var dayStartFmt = new Intl.DateTimeFormat(undefined, {
+    timeZone: tz, day: "2-digit", month: "short"
+  });
+
+  function detectDefaultHour12() {
+    try {
+      return new Intl.DateTimeFormat(undefined, { hour: "numeric" }).resolvedOptions().hour12 !== false;
+    } catch (e) { return true; }
+  }
+  function detectDefaultDateFormat() {
+    try {
+      var loc = Intl.DateTimeFormat().resolvedOptions().locale || "en-US";
+      return /^en-US/i.test(loc) ? "us" : "eu";
+    } catch (e) { return "us"; }
+  }
+  function loadPrefs() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function savePrefs() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var saved = loadPrefs() || {};
+  var state = {
+    dateFormat: saved.dateFormat || detectDefaultDateFormat(),
+    timeFormat: saved.timeFormat || (detectDefaultHour12() ? "12" : "24"),
+    theme: saved.theme || null,
+    font: saved.font || "default"
+  };
+
+  var clockText = document.getElementById("clockText");
+  var ampmEl = document.getElementById("ampm");
+  var dateHeading = document.getElementById("dateHeading");
+  var offsetVal = document.getElementById("offsetVal");
+  var utcVal = document.getElementById("utcVal");
+  var progressFill = document.getElementById("progressFill");
+  var dayStartLabel = document.getElementById("dayStartLabel");
+
+  var dateFormatBtn = document.getElementById("dateFormatBtn");
+  var timeFormatBtn = document.getElementById("timeFormatBtn");
+  var themeBtn = document.getElementById("themeBtn");
+  var themeIconSun = document.getElementById("themeIconSun");
+  var themeIconMoon = document.getElementById("themeIconMoon");
+  var fontSelect = document.getElementById("fontSelect");
+
+  var FONT_STACKS = {
+    calibri: '"Calibri", "Candara", "Segoe UI", Optima, Arial, sans-serif',
+    times: '"Times New Roman", Times, "Liberation Serif", serif',
+    georgia: 'Georgia, "Times New Roman", serif',
+    courier: '"Courier New", Courier, "Liberation Mono", monospace'
+  };
+
+  function applyFont(key) {
+    var root = document.documentElement;
+    if (key === "default" || !FONT_STACKS[key]) {
+      root.style.removeProperty("--font-heading");
+      root.style.removeProperty("--font-mono");
+    } else {
+      root.style.setProperty("--font-heading", FONT_STACKS[key]);
+      root.style.setProperty("--font-mono", FONT_STACKS[key]);
+    }
+  }
+
+  function effectiveTheme() {
+    if (state.theme) return state.theme;
+    return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+
+  function updateThemeIcon() {
+    var isDark = effectiveTheme() === "dark";
+    themeIconSun.style.display = isDark ? "none" : "block";
+    themeIconMoon.style.display = isDark ? "block" : "none";
+    themeBtn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+  }
+
+  function updateControlLabels() {
+    dateFormatBtn.textContent = state.dateFormat === "eu" ? "EU" : "US";
+    dateFormatBtn.title = state.dateFormat === "eu" ? "Date format: European (day month)" : "Date format: US (month day)";
+    timeFormatBtn.textContent = state.timeFormat === "24" ? "24H" : "12H";
+    timeFormatBtn.title = state.timeFormat === "24" ? "Time format: 24-hour" : "Time format: 12-hour";
+  }
+
+  // Apply saved/detected preferences.
+  if (state.theme) document.documentElement.setAttribute("data-theme", state.theme);
+  applyFont(state.font);
+  fontSelect.value = state.font;
+  updateControlLabels();
+  updateThemeIcon();
+
+  dateFormatBtn.addEventListener("click", function () {
+    state.dateFormat = state.dateFormat === "eu" ? "us" : "eu";
+    updateControlLabels();
+    savePrefs();
+    render();
+  });
+  timeFormatBtn.addEventListener("click", function () {
+    state.timeFormat = state.timeFormat === "24" ? "12" : "24";
+    updateControlLabels();
+    savePrefs();
+    render();
+  });
+  themeBtn.addEventListener("click", function () {
+    state.theme = effectiveTheme() === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", state.theme);
+    updateThemeIcon();
+    savePrefs();
+  });
+  fontSelect.addEventListener("change", function () {
+    state.font = fontSelect.value;
+    applyFont(state.font);
+    savePrefs();
+  });
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+      if (!state.theme) updateThemeIcon();
+    });
+  }
+
+  var tickCount = 0;
+
+  function render() {
+    var now = new Date();
+
+    var map = {};
+    hour24Fmt.formatToParts(now).forEach(function (p) { map[p.type] = p.value; });
+    var hour24 = parseInt(map.hour, 10);
+    var m = map.minute;
+    var s = map.second;
+
+    var displayHour, ampmText;
+    if (state.timeFormat === "24") {
+      displayHour = pad(hour24);
+      ampmText = "";
+    } else {
+      var h12 = hour24 % 12;
+      if (h12 === 0) h12 = 12;
+      displayHour = pad(h12);
+      ampmText = hour24 < 12 ? "AM" : "PM";
+    }
+
+    var blink = tickCount % 2 === 0;
+    clockText.innerHTML = displayHour + '<span class="colon' + (blink ? "" : " dim") + '">:</span>' +
+      m + '<span class="colon' + (blink ? "" : " dim") + '">:</span>' + s;
+    ampmEl.textContent = ampmText;
+
+    var dateFmt = state.dateFormat === "eu" ? dateFmtEU : dateFmtUS;
+    dateHeading.textContent = dateFmt.format(now);
+
+    var dayParts = dayStartFmt.formatToParts(now);
+    var dd = "", mon = "";
+    dayParts.forEach(function (p) {
+      if (p.type === "day") dd = p.value;
+      if (p.type === "month") mon = p.value.toUpperCase();
+    });
+    dayStartLabel.textContent = dd + "-" + mon;
+
+    var offParts = offsetFmt.formatToParts(now);
+    var gmt = offParts.filter(function (p) { return p.type === "timeZoneName"; })[0];
+    offsetVal.textContent = gmt ? gmt.value : "—";
+
+    utcVal.textContent = now.toISOString().substr(11, 8) + " UTC";
+
+    // fraction of day elapsed, using the true 24h hour
+    var secondsOfDay = (hour24 % 24) * 3600 + parseInt(m, 10) * 60 + parseInt(s, 10);
+    var frac = secondsOfDay / 86400;
+    progressFill.style.width = (frac * 100).toFixed(2) + "%";
+
+    tickCount++;
+  }
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  render();
+  setInterval(render, 1000);
+})();
+</script>
